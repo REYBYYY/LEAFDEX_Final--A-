@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarks — LeafDex</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background: #021f17; color: #fff; max-width: 640px; margin: 0 auto; padding: 24px 16px; }
+        h1 { font-size: 1.5rem; margin-bottom: 4px; }
+        p.back a { color: #6ee7b7; text-decoration: none; font-size: 0.85rem; }
+        ul { list-style: none; padding: 0; }
+        li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; }
+        li .info { flex: 1; min-width: 0; }
+        li .name { font-weight: 700; }
+        li .meta { font-size: 0.8rem; color: #94a3b8; }
+        li .status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: rgba(16,185,129,0.2); color: #6ee7b7; }
+        li .status.diseased { background: rgba(244,63,94,0.2); color: #fda4af; }
+        button.remove { background: rgba(244,63,94,0.15); color: #fda4af; border: 1px solid rgba(244,63,94,0.4); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        button.remove:hover { background: rgba(244,63,94,0.3); }
+        .empty { text-align: center; color: #94a3b8; padding: 48px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔖 Bookmarks</h1>
+    <p class="back"><a href="index.html">&larr; Back to LeafDex</a></p>
+    <ul id="bookmark-list"></ul>
+    <div id="empty-message" class="empty" hidden>No saved plants yet</div>
+
+    <script>
+        var STORAGE_KEY = 'leafdex-bookmarks';
+
+        function getBookmarks() {
+            try {
+                var parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveBookmarks(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        function removeBookmark(id) {
+            saveBookmarks(getBookmarks().filter(function (b) { return b.id !== id; }));
+            render();
+        }
+
+        function isDiseased(status) {
+            var s = (status || '').toLowerCase();
+            return s.indexOf('healthy') === -1;
+        }
+
+        function render() {
+            var list = getBookmarks();
+            var ul = document.getElementById('bookmark-list');
+            var empty = document.getElementById('empty-message');
+            ul.innerHTML = '';
+            if (list.length === 0) {
+                empty.hidden = false;
+                return;
+            }
+            empty.hidden = true;
+            list.forEach(function (b) {
+                var li = document.createElement('li');
+                var info = document.createElement('div');
+                info.className = 'info';
+                var date = '';
+                try { date = new Date(b.savedAt).toLocaleDateString(); } catch (e) {}
+                info.innerHTML =
+                    '<span class="name">' + (b.emoji || '🌱') + ' ' + b.plantName + '</span><br>' +
+                    '<span class="status' + (isDiseased(b.diseaseStatus) ? ' diseased' : '') + '">' + b.diseaseStatus + '</span>' +
+                    '<div class="meta">Saved on ' + date + '</div>';
+                var btn = document.createElement('button');
+                btn.className = 'remove';
+                btn.textContent = 'Remove';
+                btn.addEventListener('click', function () { removeBookmark(b.id); });
+                li.appendChild(info);
+                li.appendChild(btn);
+                ul.appendChild(li);
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>

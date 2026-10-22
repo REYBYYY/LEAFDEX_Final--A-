@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #021c15;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  code, pre, kbd {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom frosted glass utility styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(52, 211, 153, 0.6);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.glass-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+  border: 1px solid rgba(110, 231, 183, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+}
+
+.glass-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #34d399 0%, #14b8a6 100%);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.55);
+}
+
+.glass-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ---------------------------------------------------------------------------
+   LeafDex scanner animations
+
+   Kept here as plain keyframes (rather than inline) so the scanner's analyze
+   sequence, corner brackets and result reveal can share one source of truth.
+   --------------------------------------------------------------------------- */
+
+/* Vertical laser beam used while the specimen is being captured. */
+@keyframes ldx-beam {
+  0%   { transform: translateY(0); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(var(--ldx-beam-travel, 200px)); opacity: 0; }
+}
+
+/* Horizontal sweep across the specimen while the model analyzes it. */
+@keyframes ldx-sweep {
+  0%   { transform: translateY(-118%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(118%); opacity: 0; }
+}
+
+/* Slow breathing glow behind the analyzing frame. */
+@keyframes ldx-glow {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.8; transform: scale(1.04); }
+}
+
+/* Progress bar fill for the analyze pipeline steps. */
+@keyframes ldx-progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* Sheen that sweeps across the header of a freshly-revealed report. */
+@keyframes ldx-sheen {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+
+/* The animations are applied by these classes rather than by Tailwind's
+   animate-[...] arbitrary utilities: an arbitrary utility emits the animation
+   shorthand, which resets the duration that a separate `duration-*` class sets,
+   so the element would never actually animate. */
+.ldx-beam {
+  animation: ldx-beam 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Travel distance so the line crosses the full 224px (h-56) video frame. */
+  --ldx-beam-travel: 224px;
+}
+
+.ldx-sweep {
+  animation: ldx-sweep 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.ldx-glow {
+  animation: ldx-glow 2.6s ease-in-out infinite;
+}
+
+.ldx-sheen {
+  animation: ldx-sheen 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s 1 both;
+}
+
+/* Result reveal: a custom fade-in so the report can be staggered per section.
+   The --ldx-delay variable lets each block start 0.3s after the previous one. */
+@keyframes ldx-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Report stamp: pressed onto the report like an ink stamp — it drops in slightly
+   oversized and off-angle, then settles with a tiny rotation so it reads as
+   "pressed" rather than simply faded in. */
+@keyframes ldx-stamp {
+  0%   { opacity: 0; transform: scale(1.35) rotate(-6deg); }
+  60%  { opacity: 1; transform: scale(0.97) rotate(-1.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-1.5deg); }
+}
+
+.ldx-stamp {
+  animation: ldx-stamp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--ldx-delay, 0s);
+}
+
+.ldx-fade-in {
+  animation: ldx-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--ldx-delay, 0s);
+}
+
+/* Scan-grid texture drawn over the capture frame. */
+.ldx-scan-grid {
+  background-image:
+    linear-gradient(to right, rgba(52, 211, 153, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(52, 211, 153, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ldx-fade-in { animation-duration: 0.01s; }
+  .ldx-stamp { animation-duration: 0.01s; }
+  .ldx-beam, .ldx-sweep, .ldx-glow, .ldx-sheen { animation: none !important; }
+}
+
+/* NOTE: the studio grid intentionally uses plain Tailwind `grid` +
+   lg:grid-cols-12. Do not drop the `grid` class: without it the column spans
+   stop applying and the report panel falls below the capture card. */
